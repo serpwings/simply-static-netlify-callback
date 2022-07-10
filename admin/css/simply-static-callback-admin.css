@@ -1,0 +1,12 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+#sistContainer .cloneable {
+    display: none;
+}
+
+#sistContainer .nav-tab {
+    width: 20%;
+}
