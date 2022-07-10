@@ -1,3 +1,6 @@
+Downloaded from https://downloads.wordpress.org/plugin/simply-static-callback.1.0.2.zip for further improvements and bug fixes for seamless integration with Netlify.
+
+
 === Simply Static Callback ===
 Contributors: zearg
 link: https://www.yeswehack.com
