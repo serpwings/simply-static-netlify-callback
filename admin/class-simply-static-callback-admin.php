@@ -124,6 +124,7 @@ class Simply_Static_Callback_Admin {
         return array_merge($options, [
             'callback_enabled' => $plugin->fetch_post_value( 'callback_enabled' ),
             'callback_url' => $plugin->fetch_post_value('callback_url'),
+            'callback_home' => $plugin->fetch_post_value('callback_home'),
             'callback_ssl_disabled' => $plugin->fetch_post_value('callback_ssl_disabled'),
             'callback_request_method' => $plugin->fetch_post_value('callback_request_method'),
             'callback_request_headers' => $callback_request_headers,
@@ -258,6 +259,14 @@ class Simply_Static_Callback_Admin {
                         <p class="description"><?php _e( "Only used if delivery method is ZIP Archive", 'simply-static-callback' ); ?></p>
                     </td>
                 </tr>
+                <tr>
+                    <th>
+                        <label for='callbackHome'><?php _e( "Home URL", 'simply-static-callback' ); ?></label>
+                    </th>
+                    <td>
+                        <input type='text' id='callbackHome' name='callback_home' value='<?php echo home_url() ?>' placeholder='<?php echo home_url() ?>' />
+                    </td>
+                </tr>
                 </tbody>
             </table>
 
@@ -267,5 +276,4 @@ class Simply_Static_Callback_Admin {
         </div>
         <?php
     }
-
 }
