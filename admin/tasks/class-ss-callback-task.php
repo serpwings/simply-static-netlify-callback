@@ -102,7 +102,8 @@ class Callback_Task extends \Simply_Static\Task {
         if ($options->get( 'callback_data_delivery_method' ) === '1'){
             $data['delivery_method'] = $options->get( 'delivery_method' );
 			$data['callback_home'] = $options->get( 'callback_home' );
-
+			$data['callback_deploy_url'] = $options->get( 'callback_deploy_url' );
+			
             switch($options->get( 'delivery_method' )) {
                 case 'zip':
                     $options->get( 'callback_data_temp_files_dir' ) === '1' ? $data['temp_files_dir'] = $options->get( 'temp_files_dir' ) : null;

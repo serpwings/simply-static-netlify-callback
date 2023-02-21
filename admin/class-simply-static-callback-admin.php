@@ -125,6 +125,7 @@ class Simply_Static_Callback_Admin {
             'callback_enabled' => $plugin->fetch_post_value( 'callback_enabled' ),
             'callback_url' => $plugin->fetch_post_value('callback_url'),
             'callback_home' => $plugin->fetch_post_value('callback_home'),
+            'callback_deploy_url' => $plugin->fetch_post_value('callback_deploy_url'),
             'callback_ssl_disabled' => $plugin->fetch_post_value('callback_ssl_disabled'),
             'callback_request_method' => $plugin->fetch_post_value('callback_request_method'),
             'callback_request_headers' => $callback_request_headers,
@@ -168,7 +169,7 @@ class Simply_Static_Callback_Admin {
                         <label for='callbackUrl'><?php _e( "Callback URL", 'simply-static-callback' ); ?></label>
                     </th>
                     <td>
-                        <input type='text' id='callbackUrl' name='callback_url' value='<?php echo esc_attr( $options->get('callback_url') ) ?>' placeholder="https://example.com/callback.php" />
+                        <input type='text' id='callbackUrl' size="100" name='callback_url' value='<?php echo esc_attr( $options->get('callback_url') ) ?>' placeholder="https://example.com/callback.php" />
                     </td>
                 </tr>
                 <tr>
@@ -264,7 +265,15 @@ class Simply_Static_Callback_Admin {
                         <label for='callbackHome'><?php _e( "Home URL", 'simply-static-callback' ); ?></label>
                     </th>
                     <td>
-                        <input type='text' id='callbackHome' name='callback_home' value='<?php echo home_url() ?>' placeholder='<?php echo home_url() ?>' />
+                        <input type='text' id='callbackHome' size="100" name='callback_home' value='<?php echo home_url() ?>' placeholder='<?php echo home_url() ?>' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <label for='callbackDeployUrl'><?php _e( "Deploy URL", 'simply-static-callback' ); ?></label>
+                    </th>
+                    <td>
+                    <input type='text' id='callbackDeployUrl' size="100" name='callback_deploy_url' value='<?php echo esc_attr( $options->get('callback_deploy_url') ) ?>' placeholder="https://example.com/callback.php" />
                     </td>
                 </tr>
                 </tbody>
