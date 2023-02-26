@@ -1,4 +1,6 @@
-Downloaded from https://downloads.wordpress.org/plugin/simply-static-callback.1.0.2.zip for further improvements and bug fixes for seamless integration with Netlify.
+This repository is fork of original simply-static-callback plugin available at WordPress Plugin directory.Orignal version was downloaded from https://downloads.wordpress.org/plugin/simply-static-callback.1.0.2.zip for further improvements and bug fixes for seamless integration with Netlify.
+
+We have renamed it to ``simply-static-netlify-callback`` to distinguish it as a fork. Please check this project website for detailed tutorial. 
 
 
 === Simply Static Callback ===
