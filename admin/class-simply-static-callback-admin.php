@@ -16,6 +16,7 @@
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
+ * 
  * @package    Simply_Static_Callback
  * @subpackage Simply_Static_Callback/admin
  * @author     Arthur Bouchard <a.bouchard@yeswehack.com>
@@ -94,10 +95,21 @@ class Simply_Static_Callback_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/simply-static-callback-admin.js', array( 'jquery', Simply_Static\Plugin::SLUG . '-settings-styles' ), $this->version, false );
 
 	}
+
+    public function netlify_status_admin_bar_callback(){
+        global $wp_admin_bar;
+        $wp_admin_bar->add_node(
+            array(
+                'id' => 'netlify-status-topbar',
+                'title' => '<div id="netlify-badge" class="netlify-status-badge"><img src="https://api.netlify.com/api/v1/badges/f48f2c36-41b6-4a08-a36d-624d68fbe87d/deploy-status"></div>',
+                'parent' => 'top-secondary'
+            )
+        );
+    }
+
 
     public function simply_static_settings_view_tab_callback() {
         ?> <a class='nav-tab' id='callback-tab' href='#tab-callback'><?php echo _e( 'Callback', 'simply-static-callback' ); ?></a> <?php
@@ -110,29 +122,14 @@ class Simply_Static_Callback_Admin {
     public function simply_static_options_callback($options) {
         $plugin = \Simply_Static\Plugin::instance();
 
-        // Set callback request headers name and values
-        $callback_request_headers = array();
-        $callback_request_headers_name = array_values($plugin->fetch_post_array_value( 'callback_request_headers_name' ));
-        $callback_request_headers_value = array_values($plugin->fetch_post_array_value( 'callback_request_headers_value' ));
-
-        foreach($callback_request_headers_name as $index => $name) {
-            if(!empty($name) && !empty($callback_request_headers_value[$index])){
-                $callback_request_headers[$name] = $callback_request_headers_value[$index];
-            }
-        }
-
         return array_merge($options, [
             'callback_enabled' => $plugin->fetch_post_value( 'callback_enabled' ),
-            'callback_url' => $plugin->fetch_post_value('callback_url'),
+            'github_token' => $plugin->fetch_post_value('github_token'),
+            'github_username' => $plugin->fetch_post_value('github_username'),
+            'github_repo' => $plugin->fetch_post_value('github_repo'),
             'callback_home' => $plugin->fetch_post_value('callback_home'),
             'callback_deploy_url' => $plugin->fetch_post_value('callback_deploy_url'),
-            'callback_ssl_disabled' => $plugin->fetch_post_value('callback_ssl_disabled'),
             'callback_request_method' => $plugin->fetch_post_value('callback_request_method'),
-            'callback_request_headers' => $callback_request_headers,
-            'callback_data_delivery_method' => $plugin->fetch_post_value('callback_data_delivery_method'),
-            'callback_data_local_dir' => $plugin->fetch_post_value('callback_data_local_dir'),
-            'callback_data_temp_files_dir' => $plugin->fetch_post_value('callback_data_temp_files_dir'),
-            'callback_data_archive_name' => $plugin->fetch_post_value('callback_data_archive_name'),
         ]);
     }
 
@@ -166,18 +163,26 @@ class Simply_Static_Callback_Admin {
                 </tr>
                 <tr>
                     <th>
-                        <label for='callbackUrl'><?php _e( "Callback URL", 'simply-static-callback' ); ?></label>
+                        <label for='githubUserName'><?php _e( "Github UserName", 'simply-static-callback' ); ?></label>
                     </th>
                     <td>
-                        <input type='text' id='callbackUrl' size="100" name='callback_url' value='<?php echo esc_attr( $options->get('callback_url') ) ?>' placeholder="https://example.com/callback.php" />
+                        <input type='text' id='githubUserName' size="100" name='github_username' value='<?php echo esc_attr( $options->get('github_username') ) ?>' placeholder="username" />
+                    </td>
+                </tr>
+				<tr>
+                    <th>
+                        <label for='githubRepo'><?php _e( "Github Repo", 'simply-static-callback' ); ?></label>
+                    </th>
+                    <td>
+                        <input type='text' id='githubRepo' size="100" name='github_repo' value='<?php echo esc_attr( $options->get('github_repo') ) ?>' placeholder="repo-name" />
                     </td>
                 </tr>
                 <tr>
                     <th>
-                        <label for='callbackSSLDisabled'><?php _e( "Disable SSL Verification", 'simply-static-callback' ); ?></label>
+                        <label for='githubToken'><?php _e( "Github Token", 'simply-static-callback' ); ?></label>
                     </th>
                     <td>
-                        <input type='checkbox' id='callbackSSLDisabled' name='callback_ssl_disabled' value='1' <?php echo esc_attr( $options->get('callback_ssl_disabled') === '1' ? 'checked="checked"' : '' ) ?> />
+                        <input type='text' id='githubToken' size="100" name='github_token' value='<?php echo esc_attr( $options->get('github_token') ) ?>' placeholder="token" />
                     </td>
                 </tr>
                 <tr>
@@ -187,77 +192,7 @@ class Simply_Static_Callback_Admin {
                     <td>
                         <select id="callbackRequestMethod" name="callback_request_method">
                             <option value="POST" <?php \Simply_Static\Util::selected_if( $options->get('callback_request_method') === 'POST' ) ?>>POST</option>
-                            <option value="GET" <?php \Simply_Static\Util::selected_if( $options->get('callback_request_method') === 'GET' ) ?>>GET</option>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th>
-                        <label for='callbackRequestHeaders'><?php _e( "Callback request headers", 'simply-static-callback' ); ?></label>
-                    </th>
-                    <td style="padding:0;">
-                        <table id="callback_request_headers">
-                            <?php if(is_countable($options->get('callback_request_headers')) && count($options->get('callback_request_headers')) > 0): ?>
-                                <?php $index = 0; ?>
-                                <?php foreach($options->get('callback_request_headers') as $name => $value): ?>
-                                    <tr index="<?php echo esc_attr($index); ?>">
-                                        <td>
-                                            <input type="text" name="callback_request_headers_name[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($name); ?>" placeholder="Authorization" />
-                                            <input type="text" name="callback_request_headers_value[<?php echo esc_attr($index); ?>]" value="<?php echo esc_attr($value); ?>" placeholder="Bearer xxxxxxxx" />
-                                        </td>
-                                        <td style="min-width:80px;">
-                                            <button class="remove button-primary">-</button>
-                                            <button class="add button-primary">+</button>
-                                        </td>
-                                    </tr>
-                                    <?php $index++; ?>
-                                <?php endforeach; ?>
-                            <?php else : ?>
-                                <tr index="0">
-                                    <td>
-                                        <input type="text" name="callback_request_headers_name[0]" placeholder="Authorization" />
-                                        <input type="text" name="callback_request_headers_value[0]" placeholder="Bearer xxxxxxxx" />
-                                    </td>
-                                    <td style="min-width:80px;">
-                                        <button class="remove button-primary">-</button>
-                                        <button class="add button-primary">+</button>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                            <!-- empty hidden one for jQuery-->
-                            <tr index="" class="cloneable">
-                                <td>
-                                    <input type="text" name="callback_request_headers_name[{{index}}]" disabled="disabled" placeholder="Authorization" />
-                                    <input type="text" name="callback_request_headers_value[{{index}}]" disabled="disabled" placeholder="Bearer xxxxxxxx" />
-                                </td>
-                                <td style="min-width:80px;">
-                                    <button class="remove button-primary">-</button>
-                                    <button class="add button-primary">+</button>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <th>
-                        <label for='callbackData'><?php _e( "Callback data", 'simply-static-callback' ); ?></label>
-                    </th>
-                    <td>
-                        <input type='checkbox' id='callbackDataDeliveryMethod' name='callback_data_delivery_method' value='1' <?php echo esc_attr($options->get('callback_data_delivery_method') === '1' ? 'checked="checked"' : '') ?> />
-                        <label for="callbackDataDeliveryMethod"><?php _e( "Delivery Method", 'simply-static-callback' ); ?></label>
-                        <p class="description"><?php _e( "Local Directory or ZIP Archive", 'simply-static-callback' ); ?></p>
-                        <br />
-                        <input type='checkbox' id='callbackDataLocalDir' name='callback_data_local_dir' value='1' <?php echo esc_attr($options->get('callback_data_local_dir') === '1' ? 'checked="checked"' : '') ?> />
-                        <label for="callbackDataLocalDir"><?php _e( "Local Directory", 'simply-static-callback' ); ?></label>
-                        <p class="description"><?php _e( "Only used if delivery method is Local Directory", 'simply-static-callback' ); ?></p>
-                        <br />
-                        <input type='checkbox' id='callbackDataTempFilesDir' name='callback_data_temp_files_dir' value='1' <?php echo esc_attr($options->get('callback_data_temp_files_dir') === '1' ? 'checked="checked"' : '') ?> />
-                        <label for="callbackDataTempFilesDir"><?php _e( "Temporary Files Directory", 'simply-static-callback' ); ?></label>
-                        <p class="description"><?php _e( "Only used if delivery method is ZIP Archive", 'simply-static-callback' ); ?></p>
-                        <br />
-                        <input type='checkbox' id='callbackDataArchiveName' name='callback_data_archive_name' value='1' <?php echo esc_attr($options->get('callback_data_archive_name') === '1' ? 'checked="checked"' : '') ?> />
-                        <label for="callbackDataArchiveName"><?php _e( "Generated archive name", 'simply-static-callback' ); ?></label>
-                        <p class="description"><?php _e( "Only used if delivery method is ZIP Archive", 'simply-static-callback' ); ?></p>
                     </td>
                 </tr>
                 <tr>
