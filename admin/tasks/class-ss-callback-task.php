@@ -53,7 +53,7 @@ class Callback_Task extends \Simply_Static\Task {
 		
 		$github_username = $this->options->get('github_username');
 		$github_repo = $this->options->get('github_repo');
-		$github_token = $this->options->get( 'callback_url' ) ;
+		$github_token = $this->options->get( 'github_token' ) ;
 
 		if ($github_token && $github_username && $github_repo) {
 			$url = 'https://api.github.com/repos/' . $github_username . '/' . $github_repo . '/dispatches';
