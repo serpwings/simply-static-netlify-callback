@@ -65,8 +65,8 @@ class Simply_Static_Callback {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-		if ( defined( 'SIMPLY_STATIC_CALLBACK_VERSION' ) ) {
-			$this->version = SIMPLY_STATIC_CALLBACK_VERSION;
+		if ( defined( 'SIMPLY_STATIC_GITHUB_CALLBACK_VERSION' ) ) {
+			$this->version = SIMPLY_STATIC_GITHUB_CALLBACK_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}

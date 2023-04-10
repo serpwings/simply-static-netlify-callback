@@ -7,21 +7,27 @@
  * admin area. This file also includes all of the dependencies used by the plugin,
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
- *
- * @link              https://www.yeswehack.com
+ * 
+ * This plugin is a fork of orginal Simply_Static_Callback by yeswehack.com
+ * 
+ * Some paramters in these comments have been modified for better organization of 
+ * installed WordPres plugins. These comments/paramters and modifications helps to avoid
+ * any confusion with orginal Simply_Static_Callback WordPress plugin avaialble.
+ * 
+ * @link              https://serpwings.org
  * @since             1.0.0
- * @package           Simply_Static_Callback
+ * @package           Simply_Static_GitHub_Callback
  *
  * @wordpress-plugin
- * Plugin Name:       Simply Static Callback
- * Plugin URI:        https://www.yeswehack.com
- * Description:       Send a callback to URI when Simply Static plugin generation is over
+ * Plugin Name:       Simply Static Github Callback
+ * Plugin URI:        https://seowings.org
+ * Description:       Send a callback to GitHub when Simply Static plugin generation is over
  * Version:           1.0.0
- * Author:            Arthur Bouchard
- * Author URI:        https://www.arthurbouchard.com
+ * Author:            Faisal Shahzad, (original author from Arthur Bouchard)
+ * Author URI:        https://www.seowings.org
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       simply-static-callback
+ * Text Domain:       simply-static-github-callback
  * Domain Path:       /languages
  */
 
@@ -35,7 +41,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'SIMPLY_STATIC_CALLBACK_VERSION', '1.0.0' );
+define( 'SIMPLY_STATIC_GITHUB_CALLBACK_VERSION', '1.0.0' );
 
 /**
  * The code that runs during plugin activation.

@@ -50,27 +50,41 @@ class Callback_Task extends \Simply_Static\Task {
 	 * @return boolean|\WP_Error true if done, false if not done, WP_Error if error
 	 */
 	public function perform() {
-		$url = $this->options->get( 'callback_url' );
-		$ssl_verification = $this->options->get( 'callback_ssl_disabled' ) == '1' ? false : true;
+		
+		$github_username = $this->options->get('github_username');
+		$github_repo = $this->options->get('github_repo');
+		$github_token = $this->options->get( 'github_token' ) ;
 
-		// Push needed data in $data
-		$data = array();
-		self::add_callback_data($data);
+		if ($github_token && $github_username && $github_repo) {
+			$url = 'https://api.github.com/repos/' . $github_username . '/' . $github_repo . '/dispatches';
 
-		if ($this->options->get('callback_request_method' === 'GET')) {
-			$url .= '?'.http_build_query($data);
-		}
-
-		$headers = $this->options->get( 'callback_request_headers' );
-
-		$method = $this->options->get( 'callback_request_method' );
-
-		$args = array(
-			'method' => $method,
-			'headers' => $headers,
-			'sslverify' => $ssl_verification,
-			'body' => $data,
-		);
+			$headers = array(
+                  'Accept' => 'application/vnd.github.v3+json',
+                  'Content-Type' => 'application/json',
+                  'Authorization' => 'Bearer ' . $github_token,
+              );
+		
+			// Push needed data in $data
+			$method = $this->options->get( 'callback_request_method' );
+			$args = array(
+				'method' => $method,
+				'headers' => $headers,
+				'sslverify' => $ssl_verification,
+				'body' => json_encode(array(
+					'event_type' => 'wordpress',
+					"client_payload"=> array(
+						'callback_home' => $this->options->get( 'callback_home' ),
+						"callback_deploy_url"=> $this->options->get( 'callback_deploy_url' ),
+						"archive_name"=> $this->options->get( 'archive_name' ),
+						"page_404"=> $this->options->get( 'page_404' ),
+						"page_robots"=> $this->options->get( 'page_robots' ),
+						"page_redirects"=> $this->options->get( 'page_redirects' ),
+						"page_search"=> $this->options->get( 'page_search' ),
+						)
+					)
+				)
+			);
+	  }
 
         $this->save_status_message(sprintf('Making callback on: %s', $url), 'simply-static');
 
@@ -95,24 +109,4 @@ class Callback_Task extends \Simply_Static\Task {
 
         return true;
 	}
-
-    public static function add_callback_data(&$data) {
-        $options = Options::instance();
-
-        if ($options->get( 'callback_data_delivery_method' ) === '1'){
-            $data['delivery_method'] = $options->get( 'delivery_method' );
-			$data['callback_home'] = $options->get( 'callback_home' );
-			$data['callback_deploy_url'] = $options->get( 'callback_deploy_url' );
-			
-            switch($options->get( 'delivery_method' )) {
-                case 'zip':
-                    $options->get( 'callback_data_temp_files_dir' ) === '1' ? $data['temp_files_dir'] = $options->get( 'temp_files_dir' ) : null;
-                    $options->get( 'callback_data_archive_name' ) === '1' ? $data['archive_name'] = sprintf('%s.%s', $options->get( 'archive_name' ), 'zip') : null;
-                    break;
-                case 'local':
-                    $options->get( 'callback_data_local_dir' ) === '1' ? $data['local_dir'] = $options->get( 'local_dir' ) : null;
-                    break;
-            }
-        }
-    }
 }
