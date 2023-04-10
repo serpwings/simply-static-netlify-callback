@@ -76,6 +76,10 @@ class Callback_Task extends \Simply_Static\Task {
 						'callback_home' => $this->options->get( 'callback_home' ),
 						"callback_deploy_url"=> $this->options->get( 'callback_deploy_url' ),
 						"archive_name"=> $this->options->get( 'archive_name' ),
+						"page_404"=> $this->options->get( 'page_404' ),
+						"page_robots"=> $this->options->get( 'page_robots' ),
+						"page_redirects"=> $this->options->get( 'page_redirects' ),
+						"page_search"=> $this->options->get( 'page_search' ),
 						)
 					)
 				)

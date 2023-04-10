@@ -99,20 +99,8 @@ class Simply_Static_Callback_Admin {
 
 	}
 
-    public function netlify_status_admin_bar_callback(){
-        global $wp_admin_bar;
-        $wp_admin_bar->add_node(
-            array(
-                'id' => 'netlify-status-topbar',
-                'title' => '<div id="netlify-badge" class="netlify-status-badge"><img src="https://api.netlify.com/api/v1/badges/f48f2c36-41b6-4a08-a36d-624d68fbe87d/deploy-status"></div>',
-                'parent' => 'top-secondary'
-            )
-        );
-    }
-
-
     public function simply_static_settings_view_tab_callback() {
-        ?> <a class='nav-tab' id='callback-tab' href='#tab-callback'><?php echo _e( 'Callback', 'simply-static-callback' ); ?></a> <?php
+        ?> <a class='nav-tab' id='callback-tab' href='#tab-callback'><?php echo _e( 'Callback', 'simply-static-github-callback' ); ?></a> <?php
     }
 
     public function simply_static_class_name_callback($class_name, $task_name) {
@@ -121,7 +109,12 @@ class Simply_Static_Callback_Admin {
 
     public function simply_static_options_callback($options) {
         $plugin = \Simply_Static\Plugin::instance();
-
+        $page_404 = $plugin->fetch_post_value('page_404');
+        
+        if (empty($page_404)) {
+            $page_404 = "404-error";
+        }
+          
         return array_merge($options, [
             'callback_enabled' => $plugin->fetch_post_value( 'callback_enabled' ),
             'github_token' => $plugin->fetch_post_value('github_token'),
@@ -130,6 +123,10 @@ class Simply_Static_Callback_Admin {
             'callback_home' => $plugin->fetch_post_value('callback_home'),
             'callback_deploy_url' => $plugin->fetch_post_value('callback_deploy_url'),
             'callback_request_method' => $plugin->fetch_post_value('callback_request_method'),
+            'page_404' => $page_404,
+            'page_robots' => $plugin->fetch_post_value('page_robots'),
+            'page_redirects' => $plugin->fetch_post_value('page_redirects'),
+            'page_search' => $plugin->fetch_post_value('page_search'),
         ]);
     }
 
@@ -149,13 +146,13 @@ class Simply_Static_Callback_Admin {
         ?>
 
         <div id='callback' class='tab-pane'>
-            <h2 class="title"><?php _e( "Callback on complete", 'simply-static-callback' ); ?></h2>
+            <h2 class="title"><?php _e( "Callback on complete", 'simply-static-github-callback' ); ?></h2>
             <p><?php _e( "If you want to create an automated callback on generation complete you can specify the fields below.", 'simply-static' ); ?></p>
             <table class='form-table' id='callback'>
                 <tbody>
                 <tr>
                     <th>
-                        <label for='callbackEnabled'><?php _e( "Enable callback", 'simply-static-callback' ); ?></label>
+                        <label for='callbackEnabled'><?php _e( "Enable callback", 'simply-static-github-callback' ); ?></label>
                     </th>
                     <td>
                         <input type='checkbox' id='callbackEnabled' name='callback_enabled' value='1' <?php echo esc_attr( $options->get('callback_enabled') === '1' ? 'checked="checked"' : '' ) ?> />
@@ -163,7 +160,7 @@ class Simply_Static_Callback_Admin {
                 </tr>
                 <tr>
                     <th>
-                        <label for='githubUserName'><?php _e( "Github UserName", 'simply-static-callback' ); ?></label>
+                        <label for='githubUserName'><?php _e( "Github UserName", 'simply-static-github-callback' ); ?></label>
                     </th>
                     <td>
                         <input type='text' id='githubUserName' size="100" name='github_username' value='<?php echo esc_attr( $options->get('github_username') ) ?>' placeholder="username" />
@@ -171,7 +168,7 @@ class Simply_Static_Callback_Admin {
                 </tr>
 				<tr>
                     <th>
-                        <label for='githubRepo'><?php _e( "Github Repo", 'simply-static-callback' ); ?></label>
+                        <label for='githubRepo'><?php _e( "Github Repo", 'simply-static-github-callback' ); ?></label>
                     </th>
                     <td>
                         <input type='text' id='githubRepo' size="100" name='github_repo' value='<?php echo esc_attr( $options->get('github_repo') ) ?>' placeholder="repo-name" />
@@ -179,7 +176,7 @@ class Simply_Static_Callback_Admin {
                 </tr>
                 <tr>
                     <th>
-                        <label for='githubToken'><?php _e( "Github Token", 'simply-static-callback' ); ?></label>
+                        <label for='githubToken'><?php _e( "Github Token", 'simply-static-github-callback' ); ?></label>
                     </th>
                     <td>
                         <input type='text' id='githubToken' size="100" name='github_token' value='<?php echo esc_attr( $options->get('github_token') ) ?>' placeholder="token" />
@@ -187,7 +184,7 @@ class Simply_Static_Callback_Admin {
                 </tr>
                 <tr>
                     <th>
-                        <label for='callbackRequestMethod'><?php _e( "Callback request method", 'simply-static-callback' ); ?></label>
+                        <label for='callbackRequestMethod'><?php _e( "Callback request method", 'simply-static-github-callback' ); ?></label>
                     </th>
                     <td>
                         <select id="callbackRequestMethod" name="callback_request_method">
@@ -197,7 +194,7 @@ class Simply_Static_Callback_Admin {
                 </tr>
                 <tr>
                     <th>
-                        <label for='callbackHome'><?php _e( "Home URL", 'simply-static-callback' ); ?></label>
+                        <label for='callbackHome'><?php _e( "Home URL", 'simply-static-github-callback' ); ?></label>
                     </th>
                     <td>
                         <input type='text' id='callbackHome' size="100" name='callback_home' value='<?php echo home_url() ?>' placeholder='<?php echo home_url() ?>' />
@@ -205,17 +202,51 @@ class Simply_Static_Callback_Admin {
                 </tr>
                 <tr>
                     <th>
-                        <label for='callbackDeployUrl'><?php _e( "Deploy URL", 'simply-static-callback' ); ?></label>
+                        <label for='callbackDeployUrl'><?php _e( "Deploy URL", 'simply-static-github-callback' ); ?></label>
                     </th>
                     <td>
                     <input type='text' id='callbackDeployUrl' size="100" name='callback_deploy_url' value='<?php echo esc_attr( $options->get('callback_deploy_url') ) ?>' placeholder="https://example.com/callback.php" />
                     </td>
                 </tr>
-                </tbody>
-            </table>
-
+                <tr>
+                    <th>
+                        <label for='page404'><?php _e( "404 Page", 'simply-static-github-callback' ); ?></label>
+                    </th>
+                    <td>
+                        <input type='text' id='page404' size="100" name='page_404' value='<?php echo esc_attr( $options->get('page_404') ) ?>' placeholder="404-error" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <label for='pageSearch'><?php _e( "Search Page", 'simply-static-github-callback' ); ?></label>
+                    </th>
+                    <td>
+                        <input type='text' id='pageSearch' size="100" name='page_search' value='<?php echo esc_attr( $options->get('page_search') ) ?>' placeholder="search" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <label for='pageRedirects'><?php _e( "Redirects Page", 'simply-static-github-callback' ); ?></label>
+                    </th>
+                    <td>
+                        <input type='text' id='pageRedirects' size="100" name='page_redirects' value='<?php echo esc_attr( $options->get('page_redirects') ) ?>' placeholder="redirects" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <label for='pageRobotsTxt'><?php _e( "Robots.txt Content", 'simply-static-github-callback' ); ?></label>
+                    </th>
+                    <td>
+                    <textarea aria-describedby="pageRobotsTxt" class="widefat" name="page_robots" id="pageRobotsTxt" rows="5" cols="10"  placeholder="User-agent: *"><?php echo esc_attr( $options->get('page_robots') ) ?></textarea>
+                        <div id="pageRobotsTxt" class="help-block">
+                            <p>If your hosting overrides your robots.txt files then plesae enter your custom robots.txt file (e.g. from Yoast). Default can be <i>User-agent: *</i></p>
+                        </div>
+                    </td>
+                </tr>
+           </tbody>
+        </table>
             <p class='submit'>
-                <input class='button button-primary' type='submit' name='save' value='<?php _e( "Save Changes", 'simply-static-callback' );?>' />
+                <input class='button button-primary' type='submit' name='save' value='<?php _e( "Save Changes", 'simply-static-github-callback' );?>' />
             </p>
         </div>
         <?php
